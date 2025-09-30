@@ -10,9 +10,38 @@
 
 Stellora.AI is an “agentic, multilayer RAG engine” focused on speed, precision, and trust. It orchestrates multiple specialized agents that cross-check one another to return quick, hallucination-resistant answers grounded strictly in your data. 
 
+##  System Requirements
+
+> These specs target a **single Stellora.AI instance with the on-prem orchestrator** solving a complex task (e.g., your “quantum problem” scenario). Stellora can run on smaller boxes for light workloads; the website notes cases as low as **1 CPU / 4 GB RAM / 8 GB storage** for minimal setups;
+
+### Minimum (for the described orchestrator workload)
+
+| Resource    | Spec                                                         |
+| ----------- | ------------------------------------------------------------ |
+| **CPU**     | 2 vCPU (≈ 2.5 GHz or better)                                 |
+| **RAM**     | 8 GB                                                         |
+| **Disk**    | 120 GB SSD (project data + vectorized twin + logs)           |
+| **OS**      | Ubuntu **LTS** (22.04/24.04); 64-bit server install recommended. [documentation.ubuntu.com](https://documentation.ubuntu.com/server/reference/installation/system-requirements/?utm_source=chatgpt.com) |
+| **Network** | Stable internet **< 50 Mbit/s** is sufficient; low latency helps with API calls. |
+| **GPU**     | **Not required** (CPU-only works).                           |
+| **Access**  | Outbound HTTPS to OpenAI/Azure/AWS endpoints (TLS; API-key auth). |
+
+- Notes & rationale
+
+- **Small-footprint mode:** The official site highlights efficiency—*“in some cases, it can run efficiently on just 1 CPU, 8 GB of storage, and 4 GB of RAM”*—useful for demos or tiny corpora. Scale up for agent orchestration and larger vector stores. 
+- **Ubuntu LTS:** Chosen for stability and long support; baseline server requirements are modest, so Stellora’s needs are driven mainly by your corpus size and concurrency. [documentation.ubuntu.com](https://documentation.ubuntu.com/server/reference/installation/system-requirements/?utm_source=chatgpt.com)
+- **Network:** Stellora communicates with OpenAI (or Azure/AWS OpenAI) via **secure HTTPS (TLS)**; bandwidth mainly impacts latency for API calls and model streaming rather than raw throughput.
+- **No GPU required:** CPU-only is fine; GPUs mainly buy speed for local open-weight models, which Stellora does not require for the stated setup.
+
+If you want, I can add a copy-pasteable `requirements.md` block to your repo and a simple capacity calculator (inputs: docs size, avg chunk count) to estimate disk/RAM headroom for the vectorized twin.
+
 ## Licensing
 
 > **Short version:** Stellora.AI is proprietary. You may use it only within the scope and duration of a written agreement from the Author (below). It also includes third-party open-source libraries, each under its own license.
+
+### Technology
+
+The solution is based primarily on Python and secure Python scripts/programs, which are likely proprietary, with support for x86_64 and ARM devices
 
 ### Grant & Scope
 
@@ -110,8 +139,8 @@ Stellora.AI includes third-party open-source libraries. These are **not** licens
     - via an **MCP server endpoint**, depending on the selected Stellora.AI mode.
     - or acttion defined by the Flo
 
-
-
 # Usage
 
 ## Stellora.AI Core
+
+Th
