@@ -265,3 +265,72 @@ Stellora.AI Core runs inside its **own Python virtual environment (VENV)**. The 
 #### Installer
 
 - `--install` — Create/refresh the local **venv** and install all third-party deps (LangChain → MCP transports, etc.).
+
+## Stellora.AI Flows
+
+**Stellora.AI Flows** are Python-based automations built on top of the Stellora.AI Core. They’re designed to plug into existing workflows and orchestrate retrieval, analysis, and post-processing with minimal glue code. 
+
+⚠️ **Subject to change.** Flow flags and behavior may evolve. **Always run `--help` before using any flow** to see the current interface. And also keep an eye on Stellora.AI for newly released Flows.
+
+### Featured Flow: **Term Shield**
+
+**Term Shield** adds a protective layer around command execution on the host where the flow runs. It’s intended to prevent unauthorized CLI/SSH-like activity and keep AI-driven or human-triggered commands within strict policy boundaries. Key points called out on the Flows page: [stellora.ai](https://stellora.ai/flows/)
+
+- **Configurable command control:** define which commands are permitted vs. blocked.
+- **Prevents unauthorized access:** restricts sensitive operations and system changes.
+- **Seamless integration:** designed to slot into existing processes with minimal disruption.
+
+> In short, Term Shield is a security gate for “actions,” while Core + RAG handle “answers.” 
+
+#### Using Term Shield Flow
+
+> Exact CLI and flags can vary by release, run `--help` on the flow entry point to see the live interface.
+
+#### Common optional arguments
+
+- `--ai-api-key AI_API_KEY`
+   **Path to a file** containing your model provider API key (OpenAI/Azure/AWS, etc.).
+   Keep the file private (e.g., `chmod 600 /etc/keys/openai.key`).
+
+- `--command COMMAND`
+   The **exact shell command** to evaluate/execute.
+   Tip: quote the whole command so it’s passed as one argument:
+
+  ```
+  --command "ls -la /var/log"
+  ```
+
+  `--mode MODE`
+   Operating mode for the flow (`STDOUT` vs `EXEC`}. When in EXEC mode, it will **execute**/**block** the command with comment according **the** **policy**.
+
+- `--severity-threshold SEVERITY_THRESHOLD`
+   Minimum severity at which a command is **executed**.
+   (1-10, readnonly: 0-5, moderate: 6-8, destructive: 9-10)
+
+- `--dataset-directory DATASET_DIRECTORY`
+   Location of the dataset/core context to specify the policies of the commands (in natural language).
+
+- `--input-pipe INPUT_PIPE` / `--output-pipe OUTPUT_PIPE`
+   UNIX named pipes to talk to Stellora.AI Core.
+
+- `--pid-file-daemon PID_FILE_DAEMON`, `--keep-daemon KEEP_DAEMON`
+   Control the helper daemon lifecycle and PID file location.
+
+- `--log-file-daemon LOG_FILE_DAEMON`, `--log-file-workflow LOG_FILE_WORKFLOW`
+   Paths for daemon/workflow logs.
+
+#### Quick start examples
+
+```
+./term_shield.py \
+  --command "cat /etc/shadow" \
+  --dataset-directory /srv/stellora/dataset \
+  --input-pipe /tmp/Stellora.AI-core-pipe.in \
+  --output-pipe /tmp/Stellora.AI-core-pipe.out \
+  --severity-threshold 5 \
+  --ai-api-key /etc/keys/openai.key
+```
+
+# Disclaimer 
+
+**Important:** This documentation is updated regularly, but Stellora.AI evolves quickly and some changes may not be reflected immediately. If anything is unclear or you need authoritative guidance for your environment, **contact the Stellora.AI team** for confirmation and support.
