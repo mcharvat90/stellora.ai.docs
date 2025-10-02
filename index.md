@@ -248,17 +248,17 @@ Stellora.AI Core runs inside its **own Python virtual environment (VENV)**. The 
 
 #### Agentic AI (tool use & orchestration inside Core)
 
-- `--agentic-enable` — Enable the internal agent loop.
+- `--agentic-enable` — Enable the agentic tools processing.
 - `--agentic-max-iteration` — Cap on agent steps. *(default: `10`)*
 - `--agentic-tools-folders <paths...>` — One or more folders with **StructuredTool** definitions.
   - Example: `--agentic-tools-folders /opt/stellora/tools /srv/custom_tools`
-- `--agentic-verbose` — Surface tool calls and intermediate reasoning to the **agentic log pipe**.
+- `--agentic-verbose` — Surface tool calls and intermediate reasoning to the **agentic log pipe**.(deprecating) or to chat output
 
 #### Dataset (Vectorized Twin I/O)
 
 - `--dataset-directory` — Root directory of your **source files**. *(default: `dataset/`)*
 - `--dataset-mode` — `structured` *(default; HTML/TXT/CSV/PDF)* or `unstructured` *(DOCX/XLS(X)/PPTX/XML/PY etc.)*.
-- `--dataset-cache-disable` — Don’t cache parsed chunks/embeddings (slower, clean runs).
+- `--dataset-cache-disable` — Don’t cache parsed chunks/embeddings (slower, clean runs, costs tokens of embedding model).
 - `--dataset-cache-directory` — Where to store cache artifacts. *(default: `cache/`)*
 - `--csv-delimiter` — Override CSV delimiter. *(default: `,`)*
 
