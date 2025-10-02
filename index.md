@@ -10,9 +10,50 @@
 
 Stellora.AI is an “agentic, multilayer RAG engine” focused on speed, precision, and trust. It orchestrates multiple specialized agents that cross-check one another to return quick, hallucination-resistant answers grounded strictly in your data. 
 
-##  System Requirements
+## Usage Options (SaaS vs On-Prem)
 
-> These specs target a **single Stellora.AI instance with the on-prem orchestrator** solving a complex task (e.g., your “quantum problem” scenario). Stellora can run on smaller boxes for light workloads; the website notes cases as low as **1 CPU / 4 GB RAM / 8 GB storage** for minimal setups;
+## On-Prem (Self-Hosted) 
+
+When deploying on-prem, the **customer (administrator)** is fully responsible for setting up and maintaining API access to the selected LLM provider(s):
+
+- **API Keys / Credentials**
+  - Obtain and manage API keys (e.g., OpenAI / Azure OpenAI / AWS endpoints).
+  - Store securely (file with restrictive permissions, vault, or KMS).
+  - Configure paths in Core (e.g., `--ai-api-key /path/to/keyfile`) and any Flows.
+- **Billing Account**
+  - All LLM usage is billed **directly to your provider account**.
+  - You must manage credit limits/quotas, payment instruments, and overage protections.
+- **Governance & Limits**
+  - Apply org policies (data handling, retention, PII rules).
+  - Enforce rate limits and model/endpoint allow-lists.
+  - Monitor spend (dashboards, alerts) and rotate keys periodically.
+- **Connectivity**
+  - Ensure outbound TLS egress to the chosen model endpoints.
+  - If using private endpoints/VPNs, configure networking accordingly.
+
+> In short: **You run it, you own the keys and the bill** for model tokens used by your on-prem deployment.
+
+## SaaS (Hosted by Stellora.AI) 
+
+In the hosted option, the **Stellora.AI team configures API access** on your behalf:
+
+- **API Setup**
+  - Stellora provisions and binds the appropriate model endpoints for your tenant.
+  - Access is scoped to your environment (WebUI and/or MCP/API, per contract).
+- **Credits & Fees**
+  - **Your selected credit budget** for LLM usage is recorded and applied to your tenant.
+  - **Model token spend is charged as a fee** according to the current pricing rules on the website and/or your agreement.
+  - If you request increases to credit caps, corresponding **fees will be added**.
+- **Access**
+  - WebUI restricted access or CLI access to Stellora.AI CLI will be provided
+- **Monitoring**
+  - The team monitors model usage against your credit allocation and may throttle or notify when thresholds are reached.
+
+> In short: **Stellora.AI team sets up and manages the model access; your token usage is billed as part of your SaaS fees.**
+
+##  System Requirements (On-Prem)
+
+These specs target a **single Stellora.AI instance with the on-prem orchestrator** solving a complex task (e.g., your “quantum problem” scenario). Stellora can run on smaller boxes for light workloads.
 
 ### Minimum (for the described orchestrator workload)
 
@@ -127,17 +168,18 @@ Stellora.AI includes third-party open-source libraries. These are **not** licens
     - Communication with OpenAI is performed **over penAI API or cloud tenants (Azure OpenAI, AWS endpoints)** while keeping **your data and vectors local**/in controlled environment.
 - **Hallucination prevention**
   - Retrieved context from the Vectorized Twin is **validated / cross-checked** before synthesis to reduce hallucinations.
-- **Agentic orchestration (on-prem)**
-  - A **multilayer agent orchestrator** runs **on-premises**.
+- **Agentic orchestration**
+  - A multilayer agent orchestrator*
   - It receives the user query and any follow-up tasks, then **spawns additional Stellora.AI daemons** as needed.
   - Each spawned daemon **reuses the same ingestion → retrieval → validation path** described above.
+
 - **Flows (automation)**
-  - **Stellora.AI Flow** (SaaS or on-prem) consumes validated answers and **executes follow-on actions** (scripts, tools, integrations) under policy.
+  - **Stellora.AI Flow**  consumes validated answers and **executes follow-on actions** (scripts, tools, integrations) under policy.
 - **Outputs**
   - Final results are exposed either:
     - on an **output UNIX pipe** (stream-friendly, CLI/ops use), **or**
     - via an **MCP server endpoint**, depending on the selected Stellora.AI mode.
-    - or acttion defined by the Flo
+    - or action defined by the Flow
 
 # Usage
 
