@@ -2,7 +2,7 @@
 
 
 
-# <img src="C:\Users\Michal Charvat\OneDrive\Documents\Stellora.AI\Logo\small.png" style="zoom:25%;" /> Stellora.AI  Documentation
+# <img src="C:\Users\Michal Charvat\OneDrive\Documents\Stellora.AI\Logo\small.png" style="zoom:25%;" /> Stellora.AI Documentation
 
 ## Overview
 
@@ -169,7 +169,7 @@ Stellora.AI includes third-party open-source libraries. These are **not** licens
 - **Hallucination prevention**
   - Retrieved context from the Vectorized Twin is **validated / cross-checked** before synthesis to reduce hallucinations.
 - **Agentic orchestration**
-  - A multilayer agent orchestrator*
+  - A multilayer agent orchestrator
   - It receives the user query and any follow-up tasks, then **spawns additional Stellora.AI daemons** as needed.
   - Each spawned daemon **reuses the same ingestion → retrieval → validation path** described above.
 
@@ -183,6 +183,85 @@ Stellora.AI includes third-party open-source libraries. These are **not** licens
 
 # Usage
 
-## Stellora.AI Core
+## Stellora.AI Core — CLI Usage (raw engine)
 
-TBC
+This is the **raw engine**. It’s usually run side-by-side with Flows or an orchestrator to build user-facing solutions. By default it talks via **UNIX named pipes**; alternatively it can expose a **FastMCP** HTTP endpoint. 
+
+###   Installation Guide (VENV & Environment Validation)
+
+Stellora.AI Core runs inside its **own Python virtual environment (VENV)**. The VENV and a basic environment check are **performed automatically on first run**. You can also trigger them explicitly with `./core.py --install` in folder `linux.x86_64` or `linux.aarch64` (when running on arm64).
+
+**Note**: for installation of some APT/PIP packages, sudo access will be required.
+
+### QuickStart - Pipe mode (default)
+
+**start the daemon (pipes under /tmp)**
+`./core.py --ai-api-key /my/key --dataset-directory /my/data`
+
+**write a prompt** 
+`echo "Summarize dataset highlights" > /tmp/Stellora.AI-core-pipe.in`
+
+**read the answer**
+`cat /tmp/Stellora.AI-core-pipe.out`
+
+### QuickStart - MCP mode
+
+`./core.py --ai-api-key /my/key --dataset-directory /my/data --mcp-enable --mcp-bind-address 127.0.0.1 --mcp-bind-port 8000`
+
+*Then POST to http://127.0.0.1:8000/query (or your --mcp-default-path*)
+
+**Note:** **When `--mcp-enable` is set, pipes are disabled.** Choose one transport: pipes **or** MCP.
+
+### Brief overview of Options & Parameters
+
+#### Daemon w/ UNIX Pipes
+
+- `--app-name` — Name for daemon. *(default: “Stellora.AI: Core”)*
+- `--pid-file` — Where the daemon writes its PID. *(default: `/tmp/Stellora.AI-core.pid`)*
+- `--input-pipe` / `--output-pipe` — UNIX named pipes for requests/responses. *(defaults under `/tmp/...in` and `/tmp/...out`)*
+- `--agentic-log-pipe` — Extra pipe for **agent tool logs**. *(default: `/tmp/Stellora.AI-agentic-log-pipe.out`)* ***(will be deprecated soon)***
+- `--no-daemon` — Foreground mode (helpful for debugging, containers, systemd).
+- `--log-file` — File to append logs to. *(default: `/tmp/Stellora.AI-core.log`)*
+- `--debug` — Verbose logging.
+
+#### Daemon w/ FastMCP 
+
+- `--mcp-enable` — Turn on FastMCP; **disables pipes**.
+- `--mcp-bind-address` / `--mcp-bind-port` — Listen host/port. *(defaults: `127.0.0.1:8000`)*
+- `--mcp-default-path` — Query path. *(default: `/query`)*
+
+#### AI (LLM)
+
+- `--ai-model` — Model identifier (e.g., OpenAI/Azure/AWS alias used by your config).
+- `--ai-api-key` — **Path to a file** containing the API key (keeps keys out of shell history).
+- `--ai-max-tokens` — Upper bound for generated tokens.
+- `--ai-temperature` — Sampling temperature *(default: `0.65`; not used on GPT5+)*.
+- `--ai-memory-disable` — Turn **off** conversational memory.
+- `--ai-memory-limit` — Number of prior turns to keep if memory is enabled. *(default: `10`)*
+- `--ai-correct-output` — Re-ask the model to self-correct **N** times (0 = off).
+  - ⚠️ **Not compatible with Agentic AI** (`--agentic-enable`).
+- `--ai-persona-modify` — Inline instruction to adjust the assistant persona for this daemon (e.g., “act as a cybersecurity analyst, terse style”).
+
+#### Embeddings
+
+- `--embedding-model` — Embedding backend for the **Vectorized Twin**. *(default: `text-embedding-ada-002`)*
+
+#### Agentic AI (tool use & orchestration inside Core)
+
+- `--agentic-enable` — Enable the internal agent loop.
+- `--agentic-max-iteration` — Cap on agent steps. *(default: `10`)*
+- `--agentic-tools-folders <paths...>` — One or more folders with **StructuredTool** definitions.
+  - Example: `--agentic-tools-folders /opt/stellora/tools /srv/custom_tools`
+- `--agentic-verbose` — Surface tool calls and intermediate reasoning to the **agentic log pipe**.
+
+#### Dataset (Vectorized Twin I/O)
+
+- `--dataset-directory` — Root directory of your **source files**. *(default: `dataset/`)*
+- `--dataset-mode` — `structured` *(default; HTML/TXT/CSV/PDF)* or `unstructured` *(DOCX/XLS(X)/PPTX/XML/PY etc.)*.
+- `--dataset-cache-disable` — Don’t cache parsed chunks/embeddings (slower, clean runs).
+- `--dataset-cache-directory` — Where to store cache artifacts. *(default: `cache/`)*
+- `--csv-delimiter` — Override CSV delimiter. *(default: `,`)*
+
+#### Installer
+
+- `--install` — Create/refresh the local **venv** and install all third-party deps (LangChain → MCP transports, etc.).
